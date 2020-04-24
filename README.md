@@ -29,14 +29,38 @@ Environment variables:
 | `DEFAULT_LANDREG_LAYOUT`  | Default print template for land register extract|
 
 
-Usage/Development
------------------
+Usage
+-----
 
 API documentation:
 
     http://localhost:5020/api/
 
+
+Development
+-----------
+
+Create a virtual environment:
+
+    virtualenv --python=/usr/bin/python3 .venv
+
+Activate virtual environment:
+
+    source .venv/bin/activate
+
+Install requirements:
+
+    pip install -r requirements.txt
+
+Start local service:
+
+    CONFIG_PATH=/PATH/TO/CONFIGS/ python server.py
+
+
 Testing
 -------
 
-See `../testing/README.md`.
+Run all tests:
+
+    python test.py
+

@@ -8,13 +8,10 @@ import requests
 import urllib.parse as urlparse
 from xml.dom.minidom import parseString
 
-# add parent dir to path, so shared modules can be imported
-path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../'))
-sys.path.insert(1, path)
+from qwc_services_core.app import app_nocache
+from qwc_services_core.auth import auth_manager, optional_auth, get_auth_user
+from qwc_services_core.database import DatabaseEngine
 
-from service_lib.app import app_nocache  # noqa: E402
-from service_lib.auth import auth_manager, optional_auth, get_auth_user  # noqa: E402
-from service_lib.database import DatabaseEngine
 
 QGIS_SERVER_URL = os.environ.get('QGIS_SERVER_URL',
                                  'http://localhost:8001/ows/')
