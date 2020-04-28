@@ -1,6 +1,3 @@
-import os
-import sys
-
 from flask import Flask, Response, abort, request, stream_with_context, jsonify
 from flask_restplus import Api, Resource
 from sqlalchemy.sql import text as sql_text
@@ -11,11 +8,9 @@ from xml.dom.minidom import parseString
 from qwc_services_core.app import app_nocache
 from qwc_services_core.auth import auth_manager, optional_auth, get_auth_user
 from qwc_services_core.database import DatabaseEngine
+from qwc_services_core.tenant_handler import TenantHandler
+from qwc_services_core.runtime_config import RuntimeConfig
 
-
-QGIS_SERVER_URL = os.environ.get('QGIS_SERVER_URL',
-                                 'http://localhost:8001/ows/')
-DEFAULT_LANDREG_LAYOUT = os.getenv('DEFAULT_LANDREG_LAYOUT', "A4-Hoch")
 
 # Flask application
 app = Flask(__name__)
@@ -33,6 +28,8 @@ app.config['ERROR_404_HELP'] = False
 
 auth = auth_manager(app, api)
 
+tenant_handler = TenantHandler(app.logger)
+
 
 # routes
 @api.route('/templates')
@@ -43,14 +40,21 @@ class LandRegisterTemplates(Resource):
     def get(self):
         """Get available land register templates"""
 
+        tenant = tenant_handler.tenant()
+        config_handler = RuntimeConfig("landreg", app.logger)
+        config = config_handler.tenant_config(tenant)
+
+        qgis_server_url = config.get('qgis_server_url')
+        default_landreg_layout = config.get('default_landreg_layout')
+        project = config.get('landreg_project')
+
         params = {
             "SERVICE": "WMS",
             "VERSION": "1.3.0",
             "REQUEST": "GetProjectSettings",
         }
 
-        project = os.getenv("LANDREG_PROJECT", "grundbuch")
-        url = QGIS_SERVER_URL.rstrip("/") + "/" + project
+        url = qgis_server_url.rstrip("/") + "/" + project
         req = requests.get(url, params=params)
 
         layouts = []
@@ -69,7 +73,7 @@ class LandRegisterTemplates(Resource):
                         "height": float(composerMap.getAttribute("height")),
                         "name": composerMap.getAttribute("name")
                     },
-                    "default": name == DEFAULT_LANDREG_LAYOUT
+                    "default": name == default_landreg_layout
                 }
                 layouts.append(entry)
         except:
@@ -79,12 +83,6 @@ class LandRegisterTemplates(Resource):
 
 @api.route('/print')
 class LandRegisterExtract(Resource):
-
-    def __init__(self, api):
-        Resource.__init__(self, api)
-
-        self.db_engine = DatabaseEngine()
-        self.db = self.db_engine.geo_db()
 
     @api.doc('landregisterextract')
     @api.param('TEMPLATE', 'The print template')
@@ -104,7 +102,15 @@ class LandRegisterExtract(Resource):
         post_params = dict(urlparse.parse_qsl(request.get_data().decode('utf-8')))
         app.logger.info("POST params: %s" % post_params)
 
-        project = os.getenv("LANDREG_PROJECT", "grundbuch")
+        tenant = tenant_handler.tenant()
+        config_handler = RuntimeConfig("landreg", app.logger)
+        config = config_handler.tenant_config(tenant)
+
+        db = db_engine.db_engine(config.get('db_url'))
+        qgis_server_url = config.get('qgis_server_url')
+        project = config.get('landreg_project')
+        landreg_printinfo_table = config.get('landreg_printinfo_table')
+        landreg_print_layers = config.get('landreg_print_layers')
 
         params = {
             "SERVICE": "WMS",
@@ -118,7 +124,7 @@ class LandRegisterExtract(Resource):
         params = {k.upper(): v for k, v in params.items()}
 
         # Set LAYERS and OPACITIES
-        params["LAYERS"] = os.getenv("LANDREG_PRINT_LAYERS", "Grundstuecke")
+        params["LAYERS"] = landreg_print_layers
         params["OPACITIES"] = ",".join( map(lambda item: "255", params["LAYERS"].split(",")))
 
         # Determine center of extent
@@ -127,13 +133,12 @@ class LandRegisterExtract(Resource):
         y = 0.5 * (extent[1] + extent[3])
 
         # Determine lieferdatum and nfgeometer
-        table = os.getenv("LANDREG_PRINTINFO_TABLE", "agi_nfgeometer_pub.print_info")
-        conn = self.db.connect()
+        conn = db.connect()
         sql = sql_text("""
             SELECT nfgeometer, lieferdatum, anschrift, kontakt, gemeinde
             FROM {table}
             WHERE ST_CONTAINS(geometrie, ST_SetSRID(ST_MakePoint(:x, :y), 2056));
-        """.format(table=table))
+        """.format(table=landreg_printinfo_table))
 
         sql_result = conn.execute(sql, x=x, y=y).fetchone()
 
@@ -161,7 +166,7 @@ class LandRegisterExtract(Resource):
             del params["GRID_INTERVAL_Y"]
 
         # Forward to QGIS server
-        url = QGIS_SERVER_URL.rstrip("/") + "/" + project
+        url = qgis_server_url.rstrip("/") + "/" + project
         req = requests.post(url, timeout=120, data=params)
         app.logger.info("Forwarding request to %s\n%s" % (req.url, params))
 
@@ -180,5 +185,6 @@ class LandRegisterExtract(Resource):
 
 # local webserver
 if __name__ == '__main__':
-    print("Starting Print service...")
+    from flask_cors import CORS
+    CORS(app)
     app.run(host='localhost', port=5020, debug=True)
