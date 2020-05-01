@@ -30,6 +30,8 @@ auth = auth_manager(app, api)
 
 tenant_handler = TenantHandler(app.logger)
 
+db_engine = DatabaseEngine()
+
 
 # routes
 @api.route('/templates')
