@@ -1,24 +1,63 @@
 {
-  "$schema":"http://json-schema.org/draft-07/schema#",
-  "$id":"https://git.sourcepole.ch/ktso/somap/-/raw/master/docs/schemas/sogis-landreg-service.json",
-  "title":"SO!GIS Landreg Service",
-  "type":"object",
-  "properties":{
-    "$schema":{"title":"JSON Schema","description":"Reference to JSON schema of this config","type":"string","format":"uri","default":"https://git.sourcepole.ch/ktso/somap/-/raw/master/docs/schemas/sogis-landreg-service.json"},
-    "service":{"title":"Service name","type":"string","const":"landreg"},
-    "config":{
-      "title":"Config options",
-      "type":"object",
-      "properties":{
-        "db_url":{"description":"DB connection for print_info queries","type":"string"},
-        "qgis_server_url":{"description":"QGIS Server URL","type":"string","format":"uri"},
-        "landreg_project":{"description":"QGIS project name","type":"string"},
-        "landreg_print_layers":{"description":"Layer names to print","type":"string"},
-        "landreg_printinfo_table":{"description":"Table containing nfgeometer and lieferdatum","type":"string"},
-        "default_landreg_layout":{"description":"Default print template for land register extract","type":"string"}
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/qwc-services/sogis-landreg-service/master/schemas/sogis-landreg-service.json",
+  "title": "SO!GIS Landreg Service",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "title": "JSON Schema",
+      "description": "Reference to JSON schema of this config",
+      "type": "string",
+      "format": "uri",
+      "default": "https://raw.githubusercontent.com/qwc-services/sogis-landreg-service/master/schemas/sogis-landreg-service.json"
+    },
+    "service": {
+      "title": "Service name",
+      "type": "string",
+      "const": "landreg"
+    },
+    "config": {
+      "title": "Config options",
+      "type": "object",
+      "properties": {
+        "db_url": {
+          "description": "DB connection for print_info queries",
+          "type": "string"
+        },
+        "qgis_server_url": {
+          "description": "QGIS Server URL",
+          "type": "string",
+          "format": "uri"
+        },
+        "landreg_project": {
+          "description": "QGIS project name",
+          "type": "string"
+        },
+        "landreg_print_layers": {
+          "description": "Layer names to print",
+          "type": "string"
+        },
+        "landreg_printinfo_table": {
+          "description": "Table containing nfgeometer and lieferdatum",
+          "type": "string"
+        },
+        "default_landreg_layout": {
+          "description": "Default print template for land register extract",
+          "type": "string"
+        }
       },
-      "required":["db_url","qgis_server_url","landreg_project","landreg_print_layers","landreg_printinfo_table","default_landreg_layout"]
+      "required": [
+        "db_url",
+        "qgis_server_url",
+        "landreg_project",
+        "landreg_print_layers",
+        "landreg_printinfo_table",
+        "default_landreg_layout"
+      ]
     }
   },
-  "required":["service","config"]
+  "required": [
+    "service",
+    "config"
+  ]
 }
