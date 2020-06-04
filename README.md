@@ -1,6 +1,3 @@
-[![](https://github.com/qwc-services/sogis-landreg-service/workflows/build/badge.svg)](https://hub.docker.com/repository/docker/sourcepole/sogis-landreg-service)
-[![](https://img.shields.io/docker/pulls/sourcepole/sogis-landreg-service)](https://hub.docker.com/repository/docker/sourcepole/sogis-landreg-service)
-
 SO!GIS Land Register Extract service
 ====================================
 
