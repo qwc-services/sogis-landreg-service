@@ -26,8 +26,7 @@
         },
         "qgis_server_url": {
           "description": "QGIS Server URL",
-          "type": "string",
-          "format": "uri"
+          "type": "string"
         },
         "landreg_project": {
           "description": "QGIS project name",
