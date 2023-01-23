@@ -1,10 +1,11 @@
 from flask import Flask, Response, abort, request, stream_with_context, jsonify
-from flask_restplus import Api, Resource
+from flask_restx import Resource
 from sqlalchemy.sql import text as sql_text
 import requests
 import urllib.parse as urlparse
 from xml.dom.minidom import parseString
 
+from qwc_services_core.api import Api
 from qwc_services_core.app import app_nocache
 from qwc_services_core.auth import auth_manager, optional_auth, get_auth_user
 from qwc_services_core.database import DatabaseEngine
@@ -199,6 +200,4 @@ def healthz():
 
 # local webserver
 if __name__ == '__main__':
-    from flask_cors import CORS
-    CORS(app)
     app.run(host='localhost', port=5020, debug=True)
