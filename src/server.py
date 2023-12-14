@@ -143,7 +143,7 @@ class LandRegisterExtract(Resource):
             WHERE ST_CONTAINS(geometrie, ST_SetSRID(ST_MakePoint(:x, :y), 2056));
         """.format(table=landreg_printinfo_table))
 
-        sql_result = conn.execute(sql, x=x, y=y).fetchone()
+        sql_result = conn.execute(sql, {"x": x, "y": y}).mappings().fetchone()
 
         if sql_result:
             params["NFGEOMETER"] = sql_result["nfgeometer"]
