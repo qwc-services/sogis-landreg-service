@@ -9,7 +9,8 @@ from qwc_services_core.api import Api
 from qwc_services_core.app import app_nocache
 from qwc_services_core.auth import auth_manager, optional_auth
 from qwc_services_core.database import DatabaseEngine
-from qwc_services_core.tenant_handler import TenantHandler
+from qwc_services_core.tenant_handler import (
+    TenantHandler, TenantPrefixMiddleware, TenantSessionInterface)
 from qwc_services_core.runtime_config import RuntimeConfig
 
 
@@ -30,6 +31,8 @@ app.config['ERROR_404_HELP'] = False
 auth = auth_manager(app, api)
 
 tenant_handler = TenantHandler(app.logger)
+app.wsgi_app = TenantPrefixMiddleware(app.wsgi_app)
+app.session_interface = TenantSessionInterface()
 
 db_engine = DatabaseEngine()
 
