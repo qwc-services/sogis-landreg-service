@@ -1,8 +1,10 @@
+import os
+import requests
+import urllib.parse as urlparse
+
 from flask import Flask, Response, abort, request, stream_with_context, jsonify
 from flask_restx import Api, Resource
 from sqlalchemy.sql import text as sql_text
-import requests
-import urllib.parse as urlparse
 from xml.dom.minidom import parseString
 
 from qwc_services_core.app import app_nocache
@@ -202,4 +204,4 @@ def healthz():
 
 # local webserver
 if __name__ == '__main__':
-    app.run(host='localhost', port=5020, debug=True)
+    app.run(host='localhost', port=os.environ.get("FLASK_RUN_PORT", 5000), debug=True)
