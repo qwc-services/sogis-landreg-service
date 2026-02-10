@@ -3,22 +3,22 @@ SO!GIS Land Register Extract service
 
 Delivers a land register extract report.
 
-
-Configuration
--------------
-
 A QGIS Project containing layers and print templates to use for the land
 register extract (Grundbuchauszug) must be placed in the `qgs-resources/`
 docker volume. Project name and layers must be specified using the config
 outlined below.
 
+
+Configuration
+-------------
+
 The static config files are stored as JSON files in `$CONFIG_PATH` with subdirectories for each tenant,
 e.g. `$CONFIG_PATH/default/*.json`. The default tenant name is `default`.
 
-### MapInfo Service config
+### LandReg Service config
 
 * [JSON schema](schemas/sogis-landreg-service.json)
-* File location: `$CONFIG_PATH/<tenant>/mapinfoConfig.json`
+* File location: `$CONFIG_PATH/<tenant>/landregConfig.json`
 
 Example:
 ```json
@@ -40,40 +40,28 @@ Example:
 
 Config options in the config file can be overridden by equivalent uppercase environment variables.
 
-| Variable                  | Description                                     |
-|---------------------------|-------------------------------------------------|
-| `QGIS_SERVER_URL`         | QGIS Server URL                                 |
-| `LANDREG_PROJECT`         | QGIS project name                               |
-| `LANDREG_PRINT_LAYERS`    | Layer names to print                            |
-| `LANDREG_PRINTINFO_TABLE` | Table containing `nfgeometer` and `lieferdatum` |
-| `DEFAULT_LANDREG_LAYOUT`  | Default print template for land register extract|
+Run locally
+-----------
 
+Install dependencies and run:
 
-Usage
------
+    export CONFIG_PATH=<CONFIG_PATH>
+    uv run src/server.py
 
-Run as
+To use configs from a `qwc-docker` setup, set `CONFIG_PATH=<...>/qwc-docker/volumes/config`.
 
-    python src/server.py
+Set `FLASK_DEBUG=1` for additional debug output.
+
+Set `FLASK_RUN_PORT=<port>` to change the default port (default: `5000`).
 
 API documentation:
 
-    http://localhost:5020/api/
+    http://localhost:5000/api/
 
-Development
------------
+Docker usage
+------------
 
-Install dependencies and run service:
+The Docker image is published on [Dockerhub](https://hub.docker.com/r/sourcepole/sogis-landreg-service).
 
-    uv run src/server.py
+See sample [docker-compose.yml](https://github.com/qwc-services/qwc-docker/blob/master/docker-compose-example.yml) of [qwc-docker](https://github.com/qwc-services/qwc-docker).
 
-With config path:
-
-    CONFIG_PATH=/PATH/TO/CONFIGS/ uv run src/server.py
-
-Testing
--------
-
-Run all tests:
-
-    python test.py
