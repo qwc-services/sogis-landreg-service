@@ -7,6 +7,7 @@ from flask_restx import Api, Resource
 from sqlalchemy.sql import text as sql_text
 from xml.dom.minidom import parseString
 
+from qwc_services_core.api import Api
 from qwc_services_core.app import app_nocache
 from qwc_services_core.auth import auth_manager, optional_auth
 from qwc_services_core.database import DatabaseEngine
